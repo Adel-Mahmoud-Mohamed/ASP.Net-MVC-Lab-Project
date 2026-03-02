@@ -1,0 +1,58 @@
+@model ITIEntities.Model.Student
+
+@{
+    ViewData["Title"] = "Delete Student";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 text-danger">Delete Student</h1>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card border-danger shadow-sm">
+        <div class="card-body">
+            <p class="lead">Are you sure you want to delete the following student?</p>
+
+            <dl class="row">
+                <dt class="col-sm-3">Id</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
+
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Department</dt>
+                <dd class="col-sm-9">@Model.Department?.DeptName</dd>
+            </dl>
+
+            <div class="card">
+                <div class="card-header">Enrolled Courses</div>
+                <div class="card-body p-0">
+                    @if (Model.StudentCourses != null && Model.StudentCourses.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var sc in Model.StudentCourses)
+                            {
+                                <li class="list-group-item">@sc.Course?.Name <span class="text-muted">(@sc.Degree)</span></li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="p-3 text-muted">No enrolled courses.</div>
+                    }
+                </div>
+            </div>
+
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="mt-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger">Yes, delete</button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

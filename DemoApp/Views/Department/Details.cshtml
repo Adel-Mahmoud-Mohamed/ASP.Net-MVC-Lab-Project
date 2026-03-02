@@ -1,0 +1,106 @@
+﻿@model Department
+
+@{
+    ViewData["Title"] = "Department Details";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Department Details</h1>
+        <a asp-controller="Department" asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Department ID</dt>
+                <dd class="col-sm-9">@Model.DeptId</dd>
+
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.DeptName</dd>
+
+                <dt class="col-sm-3">Capacity</dt>
+                <dd class="col-sm-9">@Model.Capacity</dd>
+
+                <dt class="col-sm-3">Students</dt>
+                <dd class="col-sm-9">@(@Model.Students?.Count ?? 0)</dd>
+
+                <dt class="col-sm-3">Courses</dt>
+                <dd class="col-sm-9">@(@Model.Courses?.Count ?? 0)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">Students</div>
+                <div class="card-body p-0">
+                    @if (Model.Students != null && Model.Students.Any())
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.Students)
+                                {
+                                    <tr>
+                                        <td>@s.Id</td>
+                                        <td>@s.Name</td>
+                                        <td>@s.Age</td>
+                                        <td>@s.Email</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="p-3 text-center text-muted">No students in this department.</div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">Courses</div>
+                <div class="card-body p-0">
+                    @if (Model.Courses != null && Model.Courses.Any())
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in Model.Courses)
+                                {
+                                    <tr>
+                                        <td>@c.CrsId</td>
+                                        <td>@c.Name</td>
+                                        <td>@c.Duration</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="p-3 text-center text-muted">No courses assigned to this department.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

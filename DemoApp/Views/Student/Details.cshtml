@@ -1,0 +1,63 @@
+@model ITIEntities.Model.Student
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Student Details</h1>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Id</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
+
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Age</dt>
+                <dd class="col-sm-9">@Model.Age</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Department</dt>
+                <dd class="col-sm-9">@Model.Department?.DeptName</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Enrolled Courses</div>
+        <div class="card-body p-0">
+            @if (Model.StudentCourses != null && Model.StudentCourses.Any())
+            {
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Degree</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sc in Model.StudentCourses)
+                        {
+                            <tr>
+                                <td>@sc.Course?.Name</td>
+                                <td>@sc.Degree</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="p-3 text-muted">This student is not enrolled in any courses.</div>
+            }
+        </div>
+    </div>
+</div>

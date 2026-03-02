@@ -1,0 +1,78 @@
+@model ITIEntities.Model.Course
+
+@{
+    ViewData["Title"] = "Edit Course";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Edit Course</h1>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="CrsId" />
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label asp-for="Name" class="form-label">Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Duration" class="form-label">Duration (hrs)</label>
+                        <input asp-for="Duration" class="form-control" />
+                        <span asp-validation-for="Duration" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Assign to departments</label>
+                        <div class="row">
+                            @foreach (var d in ViewBag.Departments as System.Collections.Generic.List<ITIEntities.Model.Department>)
+                            {
+                                var isChecked = Model.Departments != null && Model.Departments.Any(md => md.DeptId == d.DeptId);
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="departments" value="@d.DeptId" id="dept_@d.DeptId" @(isChecked ? "checked" : "") />
+                                        <label class="form-check-label" for="dept_@d.DeptId">@d.DeptName</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}

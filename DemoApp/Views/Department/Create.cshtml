@@ -1,0 +1,70 @@
+﻿@model Department
+
+@{
+    ViewData["Title"] = "Create Department";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Create Department</h1>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="DeptId" class="form-label">Department ID</label>
+                        <input asp-for="DeptId" class="form-control" />
+                        <span asp-validation-for="DeptId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label asp-for="DeptName" class="form-label">Name</label>
+                        <input asp-for="DeptName" class="form-control" placeholder="Enter department name" />
+                        <span asp-validation-for="DeptName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Capacity" class="form-label">Capacity</label>
+                        <input asp-for="Capacity" class="form-control" />
+                        <span asp-validation-for="Capacity" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Simple client-side bootstrap validation enhancement
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
