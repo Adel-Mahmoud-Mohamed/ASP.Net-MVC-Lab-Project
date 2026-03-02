@@ -53,13 +53,9 @@ namespace DemoApp
                 if (!db.Users.Any(u => u.Username == "admin"))
                 {
                     var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
-                    var user = new User { Username = "admin" };
+                    var user = new User { Username = "admin", RoleId = db.Roles.First(r => r.Name == "admin").Id };
                     user.PasswordHash = hasher.HashPassword(user, "P@ssw0rd!");
                     db.Users.Add(user);
-                    db.SaveChanges();
-
-                    var adminRole = db.Roles.First(r => r.Name == "admin");
-                    db.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = adminRole.Id });
                     db.SaveChanges();
                 }
             }
@@ -81,7 +77,7 @@ namespace DemoApp
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Student}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

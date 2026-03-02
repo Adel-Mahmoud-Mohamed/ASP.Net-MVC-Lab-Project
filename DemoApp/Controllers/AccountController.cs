@@ -42,25 +42,32 @@ namespace DemoApp.Controllers
                 return View();
             }
 
-            // create claims
-            var roles = _db.UserRoles.Where(ur => ur.UserId == user.Id).Select(ur => ur.Role.Name).ToList();
+            var roleName = _db.Roles.Where(r => r.Id == user.RoleId).Select(r => r.Name).FirstOrDefault();
 
+            // build the user claims out of the things that define the user's identity
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
-            foreach (var r in roles)
+            // Then we also add the role as a claim because it's so important for authorization, and we will be using it a lot in the application, so it's better to have it as a claim rather than having to query the database every time we need to check the user's role
+            if (!string.IsNullOrEmpty(roleName))
             {
-                claims.Add(new Claim(ClaimTypes.Role, r));
+                claims.Add(new Claim(ClaimTypes.Role, roleName));
             }
 
+            // The identity of the user is built up of the set of claims that we have defined above, and the authentication scheme (cookie in this case)
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // using this identity we create a principal which is the object that will be used to represent the user in the application, it contains the identity and the claims
             var principal = new ClaimsPrincipal(identity);
 
+            // Finally we sign in the user by passing the principal to the SignInAsync method, this will create the authentication cookie and set it in the response
+            // So a cookie will be sent to be stored on the client side, and this cookie will be sent to the server with each request
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
+            // After successful login, we redirect the user to the returnUrl if it's provided and is a local URL, otherwise we redirect to the home page
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 

@@ -11,6 +11,6 @@ namespace ITIEntities.Model
         [Required]
         public string Name { get; set; }
 
-        public virtual List<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public virtual List<User> Users { get; set; } = new List<User>();
     }
 }

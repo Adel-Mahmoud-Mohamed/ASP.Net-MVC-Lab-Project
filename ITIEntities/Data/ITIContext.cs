@@ -32,8 +32,6 @@ namespace ITIEntities.Data
 
         public DbSet<Role> Roles { get; set; }
 
-        public DbSet<UserRole> UserRoles { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Course>(c =>
@@ -54,19 +52,12 @@ namespace ITIEntities.Data
                 sc.HasKey(s => new { s.StudentId, s.CrsNo }); // composite key
             });
 
-            // user/role many-to-many via UserRole
-            modelBuilder.Entity<UserRole>(ur =>
-            {
-                ur.HasKey(x => new { x.UserId, x.RoleId });
-
-                ur.HasOne(x => x.User).WithMany(u => u.UserRoles).HasForeignKey(x => x.UserId);
-                ur.HasOne(x => x.Role).WithMany(r => r.UserRoles).HasForeignKey(x => x.RoleId);
-            });
-
             modelBuilder.Entity<User>(u =>
             {
                 u.Property(x => x.Username).IsRequired().HasMaxLength(100);
                 u.Property(x => x.PasswordHash).IsRequired();
+
+                u.HasOne(x => x.Role).WithMany(r => r.Users).HasForeignKey(x => x.RoleId);
             });
 
             modelBuilder.Entity<Role>(r =>

@@ -16,6 +16,10 @@ namespace ITIEntities.Model
         [Required]
         public string PasswordHash { get; set; }
 
-        public virtual List<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        // single role (FK)
+        [ForeignKey(nameof(Role))]
+        public int RoleId { get; set; }
+
+        public virtual Role Role { get; set; }
     }
 }
