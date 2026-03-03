@@ -12,8 +12,16 @@ namespace DemoApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            // use the existing builder variable
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            }
+            else
+            {
+                builder.Services.AddControllersWithViews();
+            }
+
             builder.Services.AddScoped<IEntityRepo<Student>, StudentRepo>();
             builder.Services.AddScoped<IEntityRepo<Department>, DepartmentRepo>();
             builder.Services.AddScoped<IEntityRepo<Course>, CourseRepo>();
