@@ -21,7 +21,6 @@ namespace DemoApp.Controllers
             this.db = db;
         }
 
-
         public IActionResult Index()
         {
             return View(studentRepo.GetAll());
@@ -137,6 +136,86 @@ namespace DemoApp.Controllers
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting the student: " + ex.Message);
                 var model = db.Students.Include(s => s.Department).Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefault(s => s.Id == id);
                 return View(model);
+            }
+        }
+
+        // GET: Student/ManageEnrollments/5
+        public IActionResult ManageEnrollments(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var student = db.Students
+                            .Include(s => s.StudentCourses).ThenInclude(sc => sc.Course)
+                            .Include(s => s.Department).ThenInclude(d => d.Courses)
+                            .FirstOrDefault(s => s.Id == id.Value);
+            if (student == null) return NotFound();
+
+            // courses offered by student's department
+            var deptCourses = student.Department?.Courses ?? new System.Collections.Generic.List<Course>();
+
+            // courses student not enrolled in (but in department)
+            var enrolledIds = student.StudentCourses.Select(sc => sc.CrsNo).ToList();
+            var available = deptCourses.Where(c => !enrolledIds.Contains(c.CrsId)).ToList();
+
+            ViewBag.AvailableCourses = available;
+
+            return View(student);
+        }
+
+        // POST: Student/ManageEnrollments/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ManageEnrollments(int id, int[] coursestoadd, int[] coursestoremove)
+        {
+            var student = db.Students.Include(s => s.StudentCourses).FirstOrDefault(s => s.Id == id);
+            if (student == null) return NotFound();
+
+            try
+            {
+                // Remove selected enrollments
+                if (coursestoremove != null && coursestoremove.Length > 0)
+                {
+                    foreach (var cid in coursestoremove)
+                    {
+                        var sc = student.StudentCourses.FirstOrDefault(x => x.CrsNo == cid && x.StudentId == id);
+                        if (sc != null)
+                        {
+                            db.StudentCourses.Remove(sc);
+                        }
+                    }
+                }
+
+                // Add selected enrollments (only if course belongs to student's department)
+                if (coursestoadd != null && coursestoadd.Length > 0)
+                {
+                    // load department course ids
+                    var deptCourseIds = db.Departments.Include(d => d.Courses).Where(d => d.DeptId == student.Deptno).SelectMany(d => d.Courses).Select(c => c.CrsId).ToList();
+
+                    foreach (var cid in coursestoadd.Distinct())
+                    {
+                        if (!student.StudentCourses.Any(x => x.CrsNo == cid) && deptCourseIds.Contains(cid))
+                        {
+                            db.StudentCourses.Add(new StudentCourse { StudentId = id, CrsNo = cid, Degree = null });
+                        }
+                    }
+                }
+
+                db.SaveChanges();
+
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while updating enrollments: " + ex.Message);
+                // reload available courses and student
+                student = db.Students
+                            .Include(s => s.StudentCourses).ThenInclude(sc => sc.Course)
+                            .Include(s => s.Department).ThenInclude(d => d.Courses)
+                            .FirstOrDefault(s => s.Id == id);
+                var deptCourses = student.Department?.Courses ?? new System.Collections.Generic.List<Course>();
+                var enrolledIds = student.StudentCourses.Select(sc => sc.CrsNo).ToList();
+                ViewBag.AvailableCourses = deptCourses.Where(c => !enrolledIds.Contains(c.CrsId)).ToList();
+                return View(student);
             }
         }
     }
