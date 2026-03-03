@@ -1,0 +1,55 @@
+@model ITIEntities.Model.Course
+
+@{
+    ViewData["Title"] = "Manage Grades";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4">Manage grades for @Model.Name</h1>
+        <a asp-action="Details" asp-route-id="@Model.CrsId" class="btn btn-secondary">Back to Course</a>
+    </div>
+
+    <form asp-action="ManageGrades" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.CrsId" />
+
+        <div class="card">
+            <div class="card-header">Enrolled Students</div>
+            <div class="card-body p-0">
+                @if (Model.CourseStudents != null && Model.CourseStudents.Any())
+                {
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Current Degree</th>
+                                <th>Set Degree</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sc in Model.CourseStudents)
+                            {
+                                <tr>
+                                    <td>@sc.Student?.Name</td>
+                                    <td>@(sc.Degree?.ToString() ?? "-")</td>
+                                    <td>
+                                        <input type="number" name="degree_@sc.StudentId" value="@(sc.Degree?.ToString() ?? "")" class="form-control" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="p-3 text-muted">No students enrolled in this course.</div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Save Grades</button>
+        </div>
+    </form>
+</div>

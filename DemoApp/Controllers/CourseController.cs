@@ -146,5 +146,60 @@ namespace DemoApp.Controllers
                 return View(model);
             }
         }
+
+        // GET: Course/ManageGrades/5
+        [Authorize(Roles = "admin")]
+        public IActionResult ManageGrades(int? id)
+        {
+            if (id == null) return NotFound();
+            var course = db.Courses
+                           .Include(c => c.CourseStudents)
+                           .ThenInclude(sc => sc.Student)
+                           .FirstOrDefault(c => c.CrsId == id.Value);
+            if (course == null) return NotFound();
+            return View(course);
+        }
+
+        // POST: Course/ManageGrades/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
+        public IActionResult ManageGrades(int id)
+        {
+            var course = db.Courses
+                           .Include(c => c.CourseStudents)
+                           .FirstOrDefault(c => c.CrsId == id);
+            if (course == null) return NotFound();
+
+            try
+            {
+                foreach (var sc in course.CourseStudents)
+                {
+                    var formKey = $"degree_{sc.StudentId}";
+                    var value = Request.Form[formKey].FirstOrDefault();
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        sc.Degree = null;
+                    }
+                    else if (int.TryParse(value, out var parsed))
+                    {
+                        sc.Degree = parsed;
+                    }
+                }
+
+                db.SaveChanges();
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while saving degrees: " + ex.Message);
+                // reload students for the view
+                course = db.Courses
+                           .Include(c => c.CourseStudents)
+                           .ThenInclude(sc => sc.Student)
+                           .FirstOrDefault(c => c.CrsId == id);
+                return View(course);
+            }
+        }
     }
 }
