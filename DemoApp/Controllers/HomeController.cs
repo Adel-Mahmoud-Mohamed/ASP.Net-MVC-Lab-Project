@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using DemoApp.Models;
+using ITIEntities.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,15 +10,26 @@ namespace DemoApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ITIContext _db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ITIContext db)
         {
             _logger = logger;
+            _db = db;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var model = new Models.DashboardViewModel
+            {
+                DepartmentsCount = _db.Departments.Count(),
+                CoursesCount = _db.Courses.Count(),
+                StudentsCount = _db.Students.Count(),
+                RecentStudents = _db.Students.OrderByDescending(s => s.Id).Take(5).ToList(),
+                RecentCourses = _db.Courses.OrderByDescending(c => c.CrsId).Take(5).ToList()
+            };
+
+            return View(model);
         }
 
         public IActionResult Privacy()
