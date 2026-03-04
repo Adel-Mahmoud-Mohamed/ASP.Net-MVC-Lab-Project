@@ -11,7 +11,7 @@ namespace ITIEntities.Model
         public int CrsNo { get; set; }
 
         public int? Degree { get; set; }
-        public virtual Student Student { get; set; }
-        public virtual Course Course { get; set; }
+        public virtual Student? Student { get; set; }
+        public virtual Course? Course { get; set; }
     }
 }

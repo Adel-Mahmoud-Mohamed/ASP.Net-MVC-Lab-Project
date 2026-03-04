@@ -59,10 +59,23 @@ namespace DemoApp.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = db.Students.Include(s => s.Department).Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefault(s => s.Id == id.Value);
-            if (model == null) return NotFound();
+            // Load student with department (no course include here)
+            var student = db.Students
+                            .Include(s => s.Department)
+                            .FirstOrDefault(s => s.Id == id.Value);
+            if (student == null) return NotFound();
 
-            return View(model);
+            // Load student's enrollments and include Course while ignoring global query filters (e.g., IsDeleted)
+            var enrollments = db.StudentCourses
+                                .Where(sc => sc.StudentId == id.Value)
+                                .Include(sc => sc.Course)
+                                .IgnoreQueryFilters() // bypass Course global query filter
+                                .ToList();
+
+            // Assign the loaded enrollments to the student navigation property so the view can display grades
+            student.StudentCourses = enrollments;
+
+            return View(student);
         }
 
         public IActionResult Edit(int? id)

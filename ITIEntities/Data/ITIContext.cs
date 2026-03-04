@@ -40,6 +40,11 @@ namespace ITIEntities.Data
                 c.Property(crs => crs.CrsId).ValueGeneratedNever();
                 c.Property(crs => crs.Name).IsRequired().HasMaxLength(100);
 
+                // soft-delete query filter
+                // This will hide the coursed that has IsDeleted = true from all queries by default, so they won't be returned in any query results unless we explicitly ignore the query filter
+                // here the context addes the predicate Where IsDeleted = false to all quiries to filter the result set
+                c.HasQueryFilter(crs => !crs.IsDeleted);
+
                 // the join table will be created by EF automatically with the name of the two tables in alphabetical order (CourseDepartment) and it will contain the primary keys of both tables as foreign keys
                 // the generated join table don't contain any additional properties
                 c.HasMany(crs => crs.Departments)
@@ -50,6 +55,17 @@ namespace ITIEntities.Data
             modelBuilder.Entity<StudentCourse>(sc =>
             {
                 sc.HasKey(s => new { s.StudentId, s.CrsNo }); // composite key
+
+                // ensure student course points to course without cascade delete so grade history is preserved
+                sc.HasOne(s => s.Course)
+                  .WithMany(c => c.CourseStudents)
+                  .HasForeignKey(s => s.CrsNo)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+                sc.HasOne(s => s.Student)
+                  .WithMany(st => st.StudentCourses)
+                  .HasForeignKey(s => s.StudentId)
+                  .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<User>(u =>

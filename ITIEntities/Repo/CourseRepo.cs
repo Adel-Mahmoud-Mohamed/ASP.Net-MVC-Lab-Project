@@ -30,7 +30,11 @@ namespace ITIEntities.Repo
 
         public void Delete(int id)
         {
-            context.Courses.Remove(GetById(id));
+            // Soft-delete: set IsDeleted flag so historical StudentCourse records remain
+            var existing = context.Courses.IgnoreQueryFilters().FirstOrDefault(c => c.CrsId == id);
+            if (existing == null) return;
+
+            existing.IsDeleted = true;
             context.SaveChanges();
         }
 
